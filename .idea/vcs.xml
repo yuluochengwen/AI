@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/权限管理系统web版" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/项目备份/权限管理系统web版(811展示版)" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/项目备份/权限管理系统web版(考勤优化版)" vcs="Git" />
