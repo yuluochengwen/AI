@@ -1,0 +1,28 @@
+name,sex,city,age,test,height,math,physics,english,success
+wyx,male,beijing,25,90,X,90,87,90,yes
+wer,female,shanghai,36,70,XXL,50,,60,no
+lisi,female,daqing,35,80,Xl,80,65,65,no
+zhangsan,mAle,haerbin,45,60,  XXL,70,74,74,yeS
+hjgj,male,shenyang,541,40,Xl,100,85,85,no
+sdsa,,beijing,25,97,XL,60,890,89,yes
+kjm,male,shenyang,54,95,X,74,80,100,yes
+dfs, female,daqing,35,94,XXL,174,76,65,yes
+lkj,male,haerbin,,83,Xl,85,89,89,  yes
+tgb,male,shenyang,54,60,XXL,89,100,60,no
+edc,male,beijing,25,75,Xl,80,60,74,yes
+ert,,shanghai,362,77,XL,70,74,85,No
+wed,female,daqing,35,85,  X,100,85,89,no
+nhy,male,haerbin,45,70,XXL,60,74,70,no
+kjm,Male,shenyang,54,65,Xl,74,80,100,yes
+rgh,male,beijing,25,95,,20,70,60,no
+ftb,female,shanghai,36,94,X,89,100,65,no
+sdr, female,daqing,35,83,XXL,80,90,88,Yes
+qfh,male,haerbin,45,60,Xl,67,75,75,no
+wed,female,daqing,35,75,XL,100,85,89,no
+hjgj,male,shenyang,541,77,,100,85,85,no
+sdsa,male,beijing,25,85,XL,60,890,89,yes
+edc,male,beijing,25,75,Xl,80,60,74,yes
+ert,,shanghai,362,77,XL,70,74,85,No
+wed,female,daqing,35,85,  X,100,85,89,no
+nhy,male,haerbin,45,70,XXL,60,74,70,no
+kjm,Male,shenyang,54,65,Xl,74,80,100,yes
