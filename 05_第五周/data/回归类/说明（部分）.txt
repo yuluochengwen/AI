@@ -1,0 +1,32 @@
+√   LotFrontage ： 房子同街道之间的距离 
+√   LotArea     ： 地块面积
+√   MSSubClass  ： 出售中的房屋类型  (无缺失值)
+√   MSZoning    ： 出售中的地盘类型
+×   Alley       ： 房屋附近的小巷
+×   Utilities   ： 是否有电等等
+√   Exterior1st ： 房屋外墙材料
+√   Exterior2nd ： 如果房屋外墙有多种材料，记下第二种
+√   MasVnrType  ： 石墙贴面类型
+√   MasVnrArea  ： 外墙装饰材料的面积，在MasVnrType缺失时为0
+√   BsmtQual    ： 地下室的高度
+√   BsmtCond    ： 地下室的整体评价
+√   BsmtExposure：
+√   BsmtFinType1：
+√   BsmtFinSF1  ：
+√   BsmtFinType2：
+√   BsmtFinSF2  ：
+√   BsmtUnfSF   ：
+√   TotalBsmtSF ：
+√   KitchenQual ： 厨房的质量 （也可以像BaseCond一样换成数值(0.14801)
+√   Functional  ： 房屋功能
+√   FirePlaces  ： 
+√   FireplaceQu ： 也可以用数值代替
+√   Garage      ： 与车库有关的量，和Bsmt相关的同样处理方式
+×   PoolQC      ： 只有三个，直接直接Drop
+√   PoolArea    ： 虽然有的不多，但没有缺失，可以保留
+√   Fence       ： 栅栏
+√   MiscFeature ： 其他的特征比如电梯之类的
+√   SaleType    ： Type of sale，销售方式，表示折扣啊这一类
+√   Electrical  ： 供电
+
+√   GrLivArea   ： Above grade (ground) living area square feet
