@@ -397,7 +397,7 @@ test_predictions = final_model.predict(test_features_scaled)
 print(f"预测完成！生成了{len(test_predictions)}个预测结果")
 
 # 10. 保存预测结果
-print("\n10. 保存预测结果...")
+print("\n10. 保存预测结果...") 
 
 # 创建结果DataFrame
 results_df = pd.DataFrame({
