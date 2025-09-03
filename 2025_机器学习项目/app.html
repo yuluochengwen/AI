@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>甲状腺健康预测系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+
+        .form-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 5px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .radio-group input[type="radio"] {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        .predict-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .result.healthy {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.unhealthy {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 甲状腺健康预测系统</h1>
+            <p>基于机器学习的智能健康评估</p>
+        </div>
+
+        <div class="form-container">
+            <form id="healthForm">
+                <!-- 基本信息 -->
+                <div class="form-section">
+                    <h3>📋 基本信息</h3>
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label for="age">年龄 (1-100岁)</label>
+                            <input type="number" id="age" name="Age" min="1" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sex">性别</label>
+                            <select id="sex" name="sex" required>
+                                <option value="">请选择</option>
+                                <option value="F">女性</option>
+                                <option value="M">男性</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 用药情况 -->
+                <div class="form-section">
+                    <h3>💊 用药情况</h3>
+                    <div class="form-group">
+                        <label>是否正在服用甲状腺素？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="thyroxine" value="t" required> 是</label>
+                            <label><input type="radio" name="thyroxine" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>是否询问过甲状腺素相关问题？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="queryonthyroxine" value="t" required> 是</label>
+                            <label><input type="radio" name="queryonthyroxine" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>是否正在服用抗甲状腺药物？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="onantithyroidmedication" value="t" required> 是</label>
+                            <label><input type="radio" name="onantithyroidmedication" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>是否正在服用锂盐？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="lithium" value="t" required> 是</label>
+                            <label><input type="radio" name="lithium" value="f"> 否</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 健康状况 -->
+                <div class="form-section">
+                    <h3>🩺 健康状况</h3>
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label>是否生病？</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="sick" value="t" required> 是</label>
+                                <label><input type="radio" name="sick" value="f"> 否</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>是否怀孕？(仅女性)</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="pregnant" value="t" required> 是</label>
+                                <label><input type="radio" name="pregnant" value="f"> 否</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>是否有精神方面的问题？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="psych" value="t" required> 是</label>
+                            <label><input type="radio" name="psych" value="f"> 否</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 手术治疗史 -->
+                <div class="form-section">
+                    <h3>🏥 手术治疗史</h3>
+                    <div class="form-group">
+                        <label>是否接受过甲状腺手术？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="thyroidsurgery" value="t" required> 是</label>
+                            <label><input type="radio" name="thyroidsurgery" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>是否接受过I131治疗？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="I131treatment" value="t" required> 是</label>
+                            <label><input type="radio" name="I131treatment" value="f"> 否</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 症状咨询 -->
+                <div class="form-section">
+                    <h3>❓ 症状咨询</h3>
+                    <div class="form-group">
+                        <label>是否询问过甲状腺功能减退相关问题？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="queryhypothyroid" value="t" required> 是</label>
+                            <label><input type="radio" name="queryhypothyroid" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>是否询问过甲状腺功能亢进相关问题？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="queryhyperthyroid" value="t" required> 是</label>
+                            <label><input type="radio" name="queryhyperthyroid" value="f"> 否</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 体征 -->
+                <div class="form-section">
+                    <h3>🔍 体征</h3>
+                    <div class="two-column">
+                        <div class="form-group">
+                            <label>是否有甲状腺肿？</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="goitre" value="t" required> 是</label>
+                                <label><input type="radio" name="goitre" value="f"> 否</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>是否有肿瘤？</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="tumor" value="t" required> 是</label>
+                                <label><input type="radio" name="tumor" value="f"> 否</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>是否有垂体功能减退？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="hypopituitary" value="t" required> 是</label>
+                            <label><input type="radio" name="hypopituitary" value="f"> 否</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 实验室检查 -->
+                <div class="form-section">
+                    <h3>🧪 实验室检查</h3>
+                    <div class="form-group">
+                        <label>是否测量了TSH？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="TSHmeasured" value="t" required> 是</label>
+                            <label><input type="radio" name="TSHmeasured" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tsh">TSH值 (0-50)</label>
+                        <input type="number" id="tsh" name="TSH" min="0" max="50" step="0.01" placeholder="如果测量了请输入值">
+                    </div>
+
+                    <div class="form-group">
+                        <label>是否测量了T3？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="T3measured" value="t" required> 是</label>
+                            <label><input type="radio" name="T3measured" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="t3">T3值 (0-10)</label>
+                        <input type="number" id="t3" name="T3" min="0" max="10" step="0.01" placeholder="如果测量了请输入值">
+                    </div>
+
+                    <div class="form-group">
+                        <label>是否测量了TT4？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="TT4measured" value="t" required> 是</label>
+                            <label><input type="radio" name="TT4measured" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="t4">T4值 (0-400)</label>
+                        <input type="number" id="t4" name="T4" min="0" max="400" step="0.01" placeholder="如果测量了请输入值">
+                    </div>
+
+                    <div class="form-group">
+                        <label>是否测量了T4U？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="T4Umeasured" value="t" required> 是</label>
+                            <label><input type="radio" name="T4Umeasured" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="t4u">T4U值 (0-2.5)</label>
+                        <input type="number" id="t4u" name="T4U" min="0" max="2.5" step="0.01" placeholder="如果测量了请输入值">
+                    </div>
+
+                    <div class="form-group">
+                        <label>是否测量了FTI？</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="FTImeasured" value="t" required> 是</label>
+                            <label><input type="radio" name="FTImeasured" value="f"> 否</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fti">FTI值 (0-400)</label>
+                        <input type="number" id="fti" name="FTI" min="0" max="400" step="0.01" placeholder="如果测量了请输入值">
+                    </div>
+                </div>
+
+                <!-- 其他信息 -->
+                <div class="form-section">
+                    <h3>ℹ️ 其他信息</h3>
+                    <div class="form-group">
+                        <label for="referral">转诊来源</label>
+                        <select id="referral" name="referral source" required>
+                            <option value="">请选择</option>
+                            <option value="SVHC">SVHC</option>
+                            <option value="other">其他</option>
+                            <option value="SVI">SVI</option>
+                            <option value="STMW">STMW</option>
+                            <option value="SVHD">SVHD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="predict-btn">🔍 开始预测</button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>正在分析您的健康数据...</p>
+            </div>
+
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('healthForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            
+            const formData = new FormData(e.target);
+            const data = {};
+            
+            // 收集表单数据
+            for (let [key, value] of formData) {
+                // 数值型字段
+                if (['Age', 'TSH', 'T3', 'T4', 'T4U', 'FTI'].includes(key)) {
+                    data[key] = value ? parseFloat(value) : 0;
+                } else {
+                    data[key] = value;
+                }
+            }
+            
+            // 添加固定字段
+            data['TBGmeasured'] = 'f';
+            data['TBG'] = '?';
+            
+            try {
+                const response = await fetch('http://localhost:5000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const prediction = await response.json();
+                
+                loading.style.display = 'none';
+                result.style.display = 'block';
+                
+                if (prediction.success) {
+                    if (prediction.prediction === 0) {
+                        result.className = 'result healthy';
+                        result.innerHTML = `
+                            <h3>✅ 预测结果：健康</h3>
+                            <p>根据您提供的信息，模型预测您患甲状腺疾病的可能性较低。</p>
+                            <p>健康概率: ${(prediction.probability * 100).toFixed(1)}%</p>
+                            <p style="font-size: 14px; margin-top: 15px; color: #666;">
+                                ⚠️ 此预测仅供参考，请定期体检并咨询专业医生
+                            </p>
+                        `;
+                    } else {
+                        result.className = 'result unhealthy';
+                        result.innerHTML = `
+                            <h3>⚠️ 预测结果：需要关注</h3>
+                            <p>根据您提供的信息，模型预测您可能存在甲状腺相关问题。</p>
+                            <p>风险概率: ${(prediction.probability * 100).toFixed(1)}%</p>
+                            <p style="font-size: 14px; margin-top: 15px; color: #666;">
+                                ⚠️ 建议尽快咨询专业医生进行详细检查
+                            </p>
+                        `;
+                    }
+                } else {
+                    result.className = 'result unhealthy';
+                    result.innerHTML = `<h3>❌ 预测失败</h3><p>${prediction.message}</p>`;
+                }
+                
+            } catch (error) {
+                loading.style.display = 'none';
+                result.style.display = 'block';
+                result.className = 'result unhealthy';
+                result.innerHTML = `
+                    <h3>❌ 连接失败</h3>
+                    <p>无法连接到预测服务，请确保后端服务正在运行。</p>
+                    <p style="font-size: 14px; color: #666;">错误信息: ${error.message}</p>
+                `;
+            }
+        });
+
+        // 动态显示/隐藏检验值输入框
+        document.querySelectorAll('input[name$="measured"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const testName = this.name.replace('measured', '');
+                const valueInput = document.querySelector(`input[name="${testName}"]`);
+                if (valueInput) {
+                    if (this.value === 't') {
+                        valueInput.style.display = 'block';
+                        valueInput.required = true;
+                    } else {
+                        valueInput.style.display = 'none';
+                        valueInput.required = false;
+                        valueInput.value = '';
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
