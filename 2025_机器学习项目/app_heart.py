@@ -6,6 +6,12 @@ import pandas as pd
 import numpy as np
 import os
 from datetime import datetime
+import json
+import requests
+
+# MySQL 参考: 权限管理系统 使用 PyMySQL 进行连接
+import pymysql
+from pymysql import Error
 
 app = Flask(__name__)
 CORS(app)  # 允许跨域请求
@@ -13,6 +19,176 @@ CORS(app)  # 允许跨域请求
 # 加载保存的模型
 MODEL_PATH = None
 model = None
+
+# 加载环境变量中的 BigModel API Key（可选）
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
+BIGMODEL_API_KEY = os.getenv("BIGMODEL_API_KEY")
+BIGMODEL_CHAT_URL = os.getenv(
+    "BIGMODEL_CHAT_URL",
+    "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+)
+BIGMODEL_MODEL = os.getenv("BIGMODEL_MODEL", "glm-4-flash")
+
+# 数据库配置（参考 权限管理系统）
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': '123456',
+    'database': 'my_db',
+    'charset': 'utf8mb4'
+}
+
+def get_db_connection():
+    """获取数据库连接，使用 DictCursor 便于字段访问"""
+    try:
+        conn = pymysql.connect(
+            host=DB_CONFIG['host'],
+            user=DB_CONFIG['user'],
+            password=DB_CONFIG['password'],
+            database=DB_CONFIG['database'],
+            charset=DB_CONFIG['charset'],
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        return conn
+    except Error as e:
+        print(f"✗ 数据库连接失败: {e}")
+        return None
+
+def init_db():
+    """初始化心脏病预测日志表(若不存在则创建)"""
+    conn = get_db_connection()
+    if not conn:
+        return False
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS heart_predictions (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    age INT NULL,
+                    sex TINYINT NULL,
+                    chest_pain_type VARCHAR(16) NULL,
+                    resting_bp INT NULL,
+                    cholesterol INT NULL,
+                    fasting_bs TINYINT NULL,
+                    resting_ecg VARCHAR(16) NULL,
+                    max_hr INT NULL,
+                    exercise_angina TINYINT NULL,
+                    oldpeak DOUBLE NULL,
+                    st_slope VARCHAR(16) NULL,
+                    prediction TINYINT NULL,
+                    healthy_prob DOUBLE NULL,
+                    heart_disease_prob DOUBLE NULL,
+                    confidence DOUBLE NULL,
+                    risk_level VARCHAR(16) NULL,
+                    model_file VARCHAR(255) NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    raw_input TEXT
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                """
+            )
+        conn.commit()
+        return True
+    except Error as e:
+        print(f"✗ 初始化日志表失败: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+def to_int_safe(x):
+    try:
+        return int(x)
+    except Exception:
+        return None
+
+def to_float_safe(x):
+    try:
+        return float(x)
+    except Exception:
+        return None
+
+def map_yes_no(v):
+    # FastingBS / ExerciseAngina: 是->1, 否->0
+    if v in (1, 0):
+        return int(v)
+    if isinstance(v, str):
+        return 1 if v.strip() in ['是', 'Y', 'y', 'Yes', 'YES'] else 0
+    return 0
+
+def map_sex(v):
+    # Sex: M->1, F->0
+    if v in (1, 0):
+        return int(v)
+    if isinstance(v, str):
+        v2 = v.strip().upper()
+        return 1 if v2 == 'M' else 0
+    return 0
+
+def log_heart_prediction(raw_input: dict, result: dict):
+    """将一次预测的原始输入与模型输出写入数据库。失败仅记录日志，不影响接口返回。"""
+    conn = get_db_connection()
+    if not conn:
+        return
+    try:
+        # 提取并做最小转换（保留原始语义）
+        age = to_int_safe(raw_input.get('Age'))
+        sex = map_sex(raw_input.get('Sex'))
+        chest_pain_type = str(raw_input.get('ChestPainType', ''))[:16]
+        resting_bp = to_int_safe(raw_input.get('RestingBP'))
+        cholesterol = to_int_safe(raw_input.get('Cholesterol'))
+        fasting_bs = map_yes_no(raw_input.get('FastingBS'))
+        resting_ecg = str(raw_input.get('RestingECG', ''))[:16]
+        max_hr = to_int_safe(raw_input.get('MaxHR'))
+        exercise_angina = map_yes_no(raw_input.get('ExerciseAngina'))
+        oldpeak = to_float_safe(raw_input.get('Oldpeak'))
+        st_slope = str(raw_input.get('ST_Slope', ''))[:16]
+
+        prediction = int(result.get('prediction')) if result and 'prediction' in result else None
+        healthy_prob = float(result['probability']['healthy']) if result and 'probability' in result else None
+        heart_prob = float(result['probability']['heart_disease']) if result and 'probability' in result else None
+        confidence = float(result.get('confidence')) if result and 'confidence' in result else None
+        risk_level = str(result.get('risk_level', ''))[:16]
+        model_file = str(result.get('model_info', {}).get('model_file', ''))[:255]
+        raw_json = json.dumps(raw_input, ensure_ascii=False)
+
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO heart_predictions (
+                    age, sex, chest_pain_type, resting_bp, cholesterol, fasting_bs,
+                    resting_ecg, max_hr, exercise_angina, oldpeak, st_slope,
+                    prediction, healthy_prob, heart_disease_prob, confidence,
+                    risk_level, model_file, raw_input
+                ) VALUES (
+                    %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s,
+                    %s, %s, %s
+                )
+                """,
+                (
+                    age, sex, chest_pain_type, resting_bp, cholesterol, fasting_bs,
+                    resting_ecg, max_hr, exercise_angina, oldpeak, st_slope,
+                    prediction, healthy_prob, heart_prob, confidence,
+                    risk_level, model_file, raw_json
+                )
+            )
+        conn.commit()
+        print("🗄️ 已写入一次心脏病预测记录到数据库")
+    except Error as e:
+        print(f"✗ 写入预测日志失败: {e}")
+        conn.rollback()
+    except Exception as ex:
+        print(f"✗ 写入预测日志发生异常: {ex}")
+        conn.rollback()
+    finally:
+        conn.close()
 
 def load_latest_heart_model():
     """加载最新的心脏病预测模型"""
@@ -25,7 +201,7 @@ def load_latest_heart_model():
     balanced_models_dir = os.path.join(script_dir, 'balanced_models')
     
     # 查找指定的心脏病预测模型文件
-    target_model = 'smote_catboost_balanced_20250903_092615.pkl'
+    target_model = 'smote_catboost_balanced_20250903_145140.pkl'
     model_path = os.path.join(balanced_models_dir, target_model)
     
     if os.path.exists(model_path):
@@ -34,10 +210,6 @@ def load_latest_heart_model():
             # 使用joblib加载模型
             model = joblib.load(MODEL_PATH)
             print(f"🎉 成功加载心脏病预测模型: {MODEL_PATH}")
-            print("✅ 此模型具有以下优势:")
-            print("   - 心脏病患者零漏诊 (100%召回率)")
-            print("   - 高精确率预测")
-            print("   - 适合心脏病预警系统")
             return True, f"心脏病预测模型加载成功: {os.path.basename(MODEL_PATH)}"
         except Exception as e:
             return False, f"模型加载失败: {str(e)}"
@@ -158,6 +330,8 @@ def home():
 def predict():
     """心脏病预测接口"""
     try:
+        # 确保日志表可用（初始化一次，失败不影响预测）
+        init_db()
         # 检查模型是否已加载
         if model is None:
             success, message = load_latest_heart_model()
@@ -223,6 +397,12 @@ def predict():
         }
         
         print(f"🎯 预测结果: {result}")
+        # 写入数据库日志（不影响接口返回）
+        try:
+            log_heart_prediction(data, result)
+        except Exception as _:
+            # 任何异常均吞掉，保证接口可用
+            pass
         return jsonify(result)
         
     except Exception as e:
@@ -278,6 +458,84 @@ def model_info():
         'load_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'model_type': '心脏病预测 - SMOTE平衡CatBoost模型'
     })
+
+
+@app.route('/ai_chat', methods=['POST'])
+def ai_chat():
+    """
+    AI 助手对话接口：转发到 BigModel 对话补全 API
+    请求体: { message: str, history?: [{role, content}] }
+    响应: { success: bool, reply?: str, error?: str }
+    """
+    try:
+        if not BIGMODEL_API_KEY:
+            return jsonify({
+                'success': False,
+                'error': '未配置 BIGMODEL_API_KEY，请在环境变量中设置后重试'
+            }), 500
+
+        payload = request.get_json(silent=True) or {}
+        user_message = (payload.get('message') or '').strip()
+        history = payload.get('history') or []
+
+        if not user_message:
+            return jsonify({'success': False, 'error': 'message 不能为空'}), 400
+
+        # 构造对话消息，加入系统提示
+        messages = [
+            {
+                'role': 'system',
+                'content': '你是一个严谨的健康科普助手，面向心血管健康场景，提供通俗、审慎的建议；明确声明不替代医生诊断。'
+            }
+        ]
+
+        # 限制历史长度，避免过长
+        for m in history[-10:]:
+            if isinstance(m, dict) and m.get('role') in ('user', 'assistant') and isinstance(m.get('content'), str):
+                messages.append({'role': m['role'], 'content': m['content']})
+
+        messages.append({'role': 'user', 'content': user_message})
+
+        req_body = {
+            'model': BIGMODEL_MODEL,
+            'messages': messages,
+            # 可按需扩展：temperature, top_p 等
+        }
+
+        headers = {
+            'Authorization': f'Bearer {BIGMODEL_API_KEY}',
+            'Content-Type': 'application/json'
+        }
+
+        resp = requests.post(
+            BIGMODEL_CHAT_URL,
+            headers=headers,
+            json=req_body,
+            timeout=20
+        )
+
+        if resp.status_code != 200:
+            return jsonify({
+                'success': False,
+                'error': f'上游接口错误: HTTP {resp.status_code}, {resp.text[:200]}'
+            }), 502
+
+        data = resp.json()
+        # 兼容 OpenAI 风格返回
+        reply = None
+        try:
+            reply = data['choices'][0]['message']['content']
+        except Exception:
+            # 兜底解析
+            reply = data.get('data') or data.get('output') or data.get('result')
+
+        if not reply:
+            reply = '抱歉，暂未获取到有效回复，请稍后再试。'
+
+        return jsonify({'success': True, 'reply': str(reply)})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'AI 助手调用失败: {str(e)}'}), 500
 
 if __name__ == '__main__':
     print("🚀 启动心脏病预测系统...")

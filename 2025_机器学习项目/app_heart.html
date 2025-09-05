@@ -281,6 +281,48 @@
         .risk-medium { background: #f39c12; color: white; }
         .risk-high { background: #e67e22; color: white; }
         .risk-very-high { background: #e74c3c; color: white; }
+
+        /* AI 助手样式 */
+        .assistant-panel {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 340px;
+            max-height: 70vh;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 999;
+        }
+        .assistant-header {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .assistant-header h4 {
+            margin: 0; font-size: 14px;
+        }
+        .assistant-body {
+            padding: 10px; overflow-y: auto; flex: 1;
+        }
+        .assistant-msg { margin: 8px 0; display: flex; }
+        .assistant-msg.user { justify-content: flex-end; }
+        .assistant-bubble {
+            max-width: 80%; padding: 8px 12px; border-radius: 12px;
+            background: #f1f2f6; color: #2c3e50; font-size: 14px;
+            white-space: pre-wrap; line-height: 1.4;
+        }
+        .assistant-msg.user .assistant-bubble { background: #e8f8f2; }
+        .assistant-footer { padding: 8px; border-top: 1px solid #eee; display: flex; gap: 6px; }
+        .assistant-input { flex: 1; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; }
+        .assistant-send { background: #e74c3c; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+        .assistant-toggle { position: fixed; right: 24px; bottom: 24px; background: #e74c3c; color: #fff; border: none; padding: 12px 14px; border-radius: 50%; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.2); z-index: 998; }
     </style>
 </head>
 <body>
@@ -458,6 +500,20 @@
         </div>
     </div>
 
+    <!-- AI 助手浮窗 -->
+    <button id="assistantToggle" class="assistant-toggle" title="AI 助手">💬</button>
+    <div id="assistantPanel" class="assistant-panel" style="display:none;">
+        <div class="assistant-header">
+            <h4>🧑‍⚕️ 心脏健康 AI 助手</h4>
+            <button id="assistantClose" style="background:transparent;border:none;color:#fff;cursor:pointer;">✖</button>
+        </div>
+        <div id="assistantBody" class="assistant-body"></div>
+        <div class="assistant-footer">
+            <input id="assistantInput" class="assistant-input" placeholder="请输入您的问题，例如：胸痛如何处理？" />
+            <button id="assistantSend" class="assistant-send">发送</button>
+        </div>
+    </div>
+
     <script>
         document.getElementById('heartPredictionForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -578,6 +634,57 @@
                     }
                 });
             });
+
+            // AI 助手交互
+            const panel = document.getElementById('assistantPanel');
+            const toggle = document.getElementById('assistantToggle');
+            const closeBtn = document.getElementById('assistantClose');
+            const body = document.getElementById('assistantBody');
+            const input = document.getElementById('assistantInput');
+            const sendBtn = document.getElementById('assistantSend');
+            const history = [];
+
+            function appendMsg(role, text) {
+                const wrap = document.createElement('div');
+                wrap.className = 'assistant-msg ' + (role === 'user' ? 'user' : 'assistant');
+                const bubble = document.createElement('div');
+                bubble.className = 'assistant-bubble';
+                bubble.textContent = text;
+                wrap.appendChild(bubble);
+                body.appendChild(wrap);
+                body.scrollTop = body.scrollHeight;
+            }
+
+            toggle.addEventListener('click', () => {
+                panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+                if (panel.style.display !== 'none') input.focus();
+            });
+            closeBtn.addEventListener('click', () => panel.style.display = 'none');
+
+            async function send() {
+                const msg = (input.value || '').trim();
+                if (!msg) return;
+                appendMsg('user', msg);
+                history.push({ role: 'user', content: msg });
+                input.value = '';
+
+                appendMsg('assistant', '思考中...');
+                try {
+                    const res = await fetch('/ai_chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: msg, history })
+                    });
+                    const data = await res.json();
+                    body.lastChild.querySelector('.assistant-bubble').textContent = data.success ? data.reply : (data.error || '服务暂不可用');
+                    if (data.success) history.push({ role: 'assistant', content: data.reply });
+                } catch (e) {
+                    body.lastChild.querySelector('.assistant-bubble').textContent = '网络异常，请稍后重试';
+                }
+            }
+
+            sendBtn.addEventListener('click', send);
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
         });
     </script>
 </body>
