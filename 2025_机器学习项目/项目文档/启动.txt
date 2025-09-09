@@ -1,1 +1,0 @@
-python "D:\驰星教育人工智能\VScodeProject\2025_机器学习项目\app.py"
