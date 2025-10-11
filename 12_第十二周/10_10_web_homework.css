@@ -1,0 +1,115 @@
+div#header {
+    height: 50px;
+    border-bottom:2px solid #756e6e;
+    align-content: center;
+}
+img#logo {
+    width: 80px;
+    height: auto;
+    align-content: center;
+    align-self: center;
+}
+
+span#menu01 {
+    margin: 5px;
+    border-radius: 12px;
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #c35e5e;
+}
+
+span#menu {
+    margin: 5px;
+}
+
+a#uuu {
+    text-decoration: none;
+    color: black;
+    
+}
+
+div#lift_menu {
+    /* background-color: #756e6e; */
+    width: 250px;
+    height: 500px;    
+    float: left;
+
+}
+
+dl#lift_menu_list {
+    margin-left: 20px;
+    margin-top: 20px;
+
+}
+
+dt#lift_menu_row {
+    font-weight: bold;
+    margin-top: 10px;
+
+}
+
+dd {
+    margin-left: 0px;
+    margin-right: 8px;
+
+    display: inline-block;
+
+}
+
+div#split_line {
+    border-bottom: 1px solid #756e6e;
+    height: 1px;
+    width: 230px;
+    float: left;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+}
+
+div#right_ad {
+    display: flex;
+    flex-grow: 1;
+    height: 500px;
+    background-image: url(img/huawei2.png);
+    background-position: 90% 10%;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+div#right_ad_text {
+    width: 400px;
+    margin-left: 30px;
+    align-content: center;
+    color: rgb(0, 0, 0);
+}
+
+h2#ad_text {
+    text-align: center;
+}
+
+h3#price {
+    margin: 0 auto;
+    width: 200px;
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+
+h5#ad_more {
+    text-align: center;
+}
+
+button#right_ad_button {
+    height: 28px;
+    margin-left: 10px;
+    background-color: rgb(0, 0, 0);
+    color: white;
+    border: 1px solid black;
+    border-radius: 20px;
+    float: right;
+}
+
+div#main {
+    clear: both;
+    height: 800px;
+}

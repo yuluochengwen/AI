@@ -1,0 +1,18 @@
+.four {
+    color: blue;
+}
+#one { 
+    color: red;
+}
+h1 {
+    text-align: center;
+    color: rgb(1, 255, 86);
+}
+#two {
+    text-align: center;
+    color: rgb(255, 255, 0);
+}
+h1#two {
+    text-align: center;
+    color: rgb(219, 32, 129);
+}
