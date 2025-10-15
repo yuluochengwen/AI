@@ -1,7 +1,31 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:conda",
     "python-envs.defaultPackageManager": "ms-python.python:conda",
-    "python-envs.pythonProjects": []
-
-
+    "python-envs.pythonProjects": [],
+    "files.associations": {
+        "windows.h": "c"
+    },
+    // 终端自动使用 UTF-8 编码
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "args": [
+                "-NoExit",
+                "-Command",
+                "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $OutputEncoding = [System.Text.Encoding]::UTF8; chcp 65001 | Out-Null"
+            ]
+        }
+    },
+    "terminal.integrated.automationProfile.windows": {
+        "path": "powershell.exe",
+        "args": [
+            "-NoExit",
+            "-Command",
+            "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; chcp 65001 | Out-Null"
+        ]
+    },
+    // 确保文件编码为 UTF-8
+    "files.encoding": "utf8",
+    "files.autoGuessEncoding": false
 }

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <title>仿B站网页练习</title>
+
+    <style>
+        a {
+            text-decoration: none;
+            color: black; 
+        }
+
+        .header {
+            width: 100%;
+            height: 150px;
+            background-image: url('img/top_image.png');
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-top: 10px;
+        }
+
+        /* 统一所有 header_items 的样式 */
+        #header_items,
+        #header_items1,
+        #header_items2 {
+            display: flex;
+            align-items: center;
+        }
+
+        /* -------------- 左侧导航文字 -------------- */
+        #header_items1 span a {
+            color: white; /* 左侧导航链接文字白色 */
+            font-weight: 500; 
+        }
+        #header_items1 span {
+            margin-right: 15px;
+            font-size: 14px;
+        }
+
+        /* -------------- 中间搜索框-------------- */
+        #header_items2 input {
+            width: 200px;
+            height: 30px;
+            border-radius: 5px 0 0 5px;
+            border: 1px solid #ccc;
+            border-right: none;
+            padding: 0 10px;
+            font-size: 14px;
+        }
+        #header_items2 button {
+            width: 60px;
+            height: 30px;
+            border-radius: 0 5px 5px 0;
+            border: 1px solid #ccc;
+            border-left: none;
+            background-color: #fff;
+            color: #666; 
+        }
+
+        /* -------------- 右侧图标+文字-------------- */
+        #header_items .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white; 
+            text-decoration: none;
+            width: 60px;
+            transition: color 0.3s;
+        }
+        #header_items .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+        #header_items span.text {
+            margin: 0;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        #tougao {
+            width: 70px;
+            height: 40px;
+            border-radius: 5px;
+            background-color: rgb(251, 114, 153);
+            border: 1px solid #fff; 
+            cursor: pointer;
+            color: white; 
+            font-weight: 500; 
+        }
+
+  
+        #header_items img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%; 
+            border: 2px solid white; 
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="header">
+        <!-- 左侧导航 -->
+        <div id="header_items1" style="margin-left: 15px;">
+            <span><a href="">首页</a></span>
+            <span><a href="">番剧</a></span>
+            <span><a href="">游戏中心</a></span>
+            <span><a href="">会员购</a></span>
+            <span><a href="">漫画</a></span>
+            <span><a href="">赛事</a></span>
+            <span><a href="">下载客户端</a></span>
+        </div>
+
+        <!-- 中间搜索框 -->
+        <div id="header_items2">
+            <input type="text" placeholder="请输入搜索内容">
+            <button><i class="fa fa-search"></i></button>
+        </div>
+        
+        <!-- 右侧图标+文字 -->
+        <div id="header_items" style="margin-right: 15px;">
+            <a href="#" style="margin-right: 10px;"><img src="https://picsum.photos/id/64/40/40" alt="头像"></a>
+            <a href="#" class="nav-item">
+                <i class="icon fa fa-diamond"></i>
+                <span class="text">大会员</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="icon fa fa-envelope-o"></i>
+                <span class="text">消息</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="icon fa fa-random"></i>
+                <span class="text">动态</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="icon fa fa-star-o"></i>
+                <span class="text">收藏</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="icon fa fa-history"></i>
+                <span class="text">历史</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="icon fa fa-lightbulb-o"></i>
+                <span class="text">创作中心</span>
+            </a>
+            <a href="#" style="margin-left: 10px;"><button id="tougao">投稿</button></a>
+        </div>
+    </div>
+</body>
+
+</html>

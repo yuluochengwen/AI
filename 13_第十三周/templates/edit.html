@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>编辑考试记录</title>
+</head>
+<body>
+    <h1>编辑考试记录</h1>
+    {% if error_mag %}
+    <p style="color: red;">{{ error_mag }}</p >
+    {% endif %}
+    <form method="POST">
+        <!-- 隐藏域：传递要编辑的 ExamNo（无需用户修改） -->
+        <input type="hidden" name="exam_no" value="{{ exam_data.ExamNo }}">
+        <p>
+            <label for="ExamNo">考试编号：</label>
+            <input type="text" name="ExamNo" id="ExamNo" value="{{ exam_data.ExamNo }}">
+        </p >        
+        <p>
+            <label for="stuNo">学号：</label>
+            <input type="text" name="stuNo" id="stuNo" value="{{ exam_data.stuNo }}">
+        </p >
+        <p>
+            <label for="writtenExam">笔试成绩：</label>
+            <input type="text" name="writtenExam" id="writtenExam" value="{{ exam_data.writtenExam }}">
+        </p >
+        <p>
+            <label for="LabExam">实验成绩：</label>
+            <input type="text" name="LabExam" id="LabExam" value="{{ exam_data.LabExam }}">
+        </p >
+        <p>
+            <input type="submit" value="提交修改">
+            <a href="{{url_for ('welcome') }}">取消</a >
+        </p >
+    </form>
+</body>
+</html>

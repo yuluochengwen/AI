@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 推荐使用 CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <title>Document</title>
+
+</head>
+
+<body>
+    <form id="ajax_form">
+        <p>考试编号：<input type="text" name="ExamNo" id="ExamNo"></p>
+        <p>学生学号：<input type="text" name="stuNo" id="stuNo"></p>
+        <P>笔试成绩：<input type="text" name="writtenExam" id="writtenExam"></P>
+        <p>机试成绩<input type="text" name="LabExam" id="LabExam"></p>
+        <p>
+            <button type="button" value="提交" id="submit">提交</button>
+            <input type="reset" value="重置">
+        </p>
+    </form>
+    <a href="/welcome">首页</a>
+    <div id="result">
+        <!-- 后端返回结果显示区域 -->
+
+    </div>
+    <script>
+        // JQ语法，先收集表单数据，创建一个JS对象
+        $(document).ready(function () {
+            // 创建一个按键点击事件，检测到点击时开始收集表单数据
+            $("#submit").click(function () {
+                // 创建一个空的JS对象
+                var exam_info = new Object;
+                exam_info.ExamNo = $("#ExamNo").val();
+                exam_info.stuNo = $("#stuNo").val();
+                exam_info.writtenExam = $("#writtenExam").val();
+                exam_info.LabExam = $("#LabExam").val();
+                // 将JS对象转换成JSON字符串
+                var data = JSON.stringify(exam_info);
+
+                // 传输数据
+                $.ajax({
+                    url: "/add_ajax",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: data,
+                    // 成功后的操作
+                    success: function (response) {
+                        console.log("接收到的响应:", response);
+                        if (response.success) {
+                            $("#result").html(`
+                                <div style="color: green; padding: 10px; border: 1px solid green;">
+                                    ${response.msg}
+                                </div>
+                            `);
+                            // 等待两秒后，跳转到后端返回的指定路径去
+                            setTimeout(function () {
+                                window.location.href = response.redirect_url;
+                            }, 2000);
+                        } else {
+                            $("#result").html(`
+                                <div style="color: red; padding: 10px; border: 1px solid red;">
+                                    ${response.msg}
+                                </div>
+                            `);
+                        }
+
+                    },
+                    error: function () {
+
+                    }
+                })
+            })
+
+            // 使用JQ的Ajax将数据data传给后端路由
+
+        })
+    </script>
+</body>
+
+</html>

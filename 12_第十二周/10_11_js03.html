@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>JS02</title>
+</head>
+<body>
+<pre id="out"></pre>
+<script type="text/javascript">
+    function f(){
+        var rows = 6; // 高度，可改
+        var out = "";
+        for (var i = 0; i < rows; i++) {
+            // 每行宽度为 2*rows-1，用 j 遍历位置
+            for (var j = 0; j < 2 * rows - 1; j++) {
+                var left = rows - 1 - i;
+                var right = rows - 1 + i;
+                if (j >= left && j <= right) {
+                    out += "*"; // 在范围内打印星号
+                } else {
+                    out += " "; // 否则打印空格
+                }
+            }
+            out += "\n";
+        }
+        document.getElementById("out").innerText = out;
+    }
+</script>
+<p onclick="f()">点击显示正三角形（用*）</p >
+</body>
+</html>
