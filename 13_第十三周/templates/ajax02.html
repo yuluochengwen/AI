@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    学生姓名：<input type="text" id="t1" value="123" placeholder="请输入名字">
+    <br>
+    后端返回的时间：<input type="text" id="t2" value="test" placeholder="返回时间">
+    <br>
+    <button id="sendBtn">发送数据</button>
+
+    <script>
+        // JQ语法
+        $(document).ready(function(){
+            $("#sendBtn").click(function(){
+                var student = new Object();     // 创建JavaScript对象
+                student.name = $("#t1").val();
+                student.age = 23;
+                student.location = 'China';  
+                var data = JSON.stringify(student);     //转换为JSON字符串
+                
+                $.ajax({
+                    url: "/sendjson2",                  // 请求的服务器地址
+                    type: "post",                       // 请求方式：POST
+                    contentType: "application/json",    // 告诉服务器发送的是 JSON 格式
+                    data: data,                         // 要发送的数据（JSON 字符串）
+                    success: function(msg){             // 成功后的回调函数
+                        alert("返回时间：" + msg.time);  // 提示框
+                        $("#t2").val(msg.time);         // 修改t2的数据
+                    },
+                    error: function(xhr, status, error){        // 失败后的回调函数
+                        alert("请求失败：" + error);
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function f(){
+            var d = new Date();
+            var time = d.getTime();
+            alert(time);
+            if (time<10){
+                document.write("<b>早上好</b>");
+            }else if(time>=10 && time<20){
+                document.write("<b>今天好</b>");
+            }else{
+                document.write("<b>晚上好</b>");
+            }
+        }
+
+        function f2(n){
+            for (var i = n; i >= 1; i--){
+                document.write(" ".repeat((2*i-1)/2) + "*".repeat((2*(n-i)+1)) + "<br>");
+            }
+        }
+    </script>
+    <p ondblclick="f2(6)"></p>
+</body>
+</html>

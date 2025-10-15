@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        a {
+            text-decoration: none;
+            color: black;
+        }
+
+        #edit {
+            color: aquamarine;
+        }
+
+        #delete {
+            color: red;
+        }
+
+    </style>
+
+</head>
+<body>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>考试编号</th>
+                <th>学号</th>
+                <th>笔试成绩</th>
+                <th>机试成绩</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- jinja2处理后端传来的字典数据userlist -->
+            <!-- 逐行读取后端发来的表格 -->
+            {% for row in userlist %}
+            <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.ExamNo }}</td>
+                <td>{{ row.stuNo }}</td>
+                <td>{{ row.writtenExam }}</td>
+                <td>{{ row.LabExam }}</td>
+                <td>
+                    <a href="{{ url_for('edit', exam_id=row.id) }}" id="edit">编辑</a>
+                    <a href="{{ url_for('delete01', exam_id=row.id) }}" id="delete">删除</a>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan=""><a href="/add">增加</a ></td>
+                <td colspan=""><a href="/delete">删除</a ></td>
+                <td colspan=""><a href="/add_ajax">增加(Ajax)</a ></td>
+                <td colspan=""><a href="/delete_ajax">删除(Ajax)</a ></td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

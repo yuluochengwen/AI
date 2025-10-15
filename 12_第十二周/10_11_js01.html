@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script>    
+        num1 = 100;
+        num2 = 200;
+        num3 = num1 + num2;
+        console.log("test");
+
+        function fun(a,b){
+            c = a + b;
+            return c;
+        }
+
+        function fun1(){
+            document.getElementById("demo").innerHTML = "test";
+        }
+
+        function f2(n){
+            for (var i = n; i >= 1; i--){
+                document.write("&nbsp;&nbsp;".repeat((2*i-1)/2) + "*".repeat((2*(n-i)+1)) + "<br>");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="demo">
+        hello!
+    </div>
+    <button onclick="f2(6)">test</button>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <form>
+                    <table class="table">
+                        <tr>
+                            <td>Start</td>
+                            <td>
+                                <div class="radio">
+                                    <label class="radio-inline"><input type="radio" name="start" id="optionsRadios1"
+                                            value="1" checked>infirm</label>
+                                    <label class="radio-inline"><input type="radio" name="start" id="optionsRadios1"
+                                            value="2">supply</label>
+                                    <label class="radio-inline"><input type="radio" name="start" id="optionsRadios1"
+                                            value="3">tank</label>
+                                    <label class="radio-inline"><input type="radio" name="start" id="optionsRadios1"
+                                            value="4">depart</label>
+                                    <label class="radio-inline"><input type="radio" name="start" id="optionsRadios1"
+                                            value="5">dragon</label>
+                                    <label class="radio-inline"><input type="radio" name="start" id="optionsRadios1"
+                                            value="6">armory</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>End</td>
+                            <td>
+                                <div class="radio">
+                                    <label class="radio-inline"><input type="radio" name="end" id="optionsRadios1"
+                                            value="1">infirm</label>
+                                    <label class="radio-inline"><input type="radio" name="end" id="optionsRadios1"
+                                            value="2">supply</label>
+                                    <label class="radio-inline"><input type="radio" name="end" id="optionsRadios1"
+                                            value="3">tank</label>
+                                    <label class="radio-inline"><input type="radio" name="end" id="optionsRadios1"
+                                            value="4">depart</label>
+                                    <label class="radio-inline"><input type="radio" name="end" id="optionsRadios1"
+                                            value="5">dragon</label>
+                                    <label class="radio-inline"><input type="radio" name="end" id="optionsRadios1"
+                                            value="6" checked>armory</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="button" class="btn btn-info" id="search">查询</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <table class="table table-bordered">
+                                <tr class="success">
+                                    <th>infirm</th>
+                                    <th>supply</th>
+                                    <th>tank</th>
+                                </tr>
+                                <tbody id="tbody">
+                                </tbody>
+                            </table>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+        <script>
+            $(function(){
+                $('#search').click(function(e){
+                    e.preventDefault();  // 阻止按钮默认行为（表单提交）
+                    
+                    $.ajax({
+                        url:"/sendjson3",
+                        type:"POST",
+                        data:$('form').serialize(),
+                        dataType:'json',
+                        success:function(data){
+                            var html = "";
+                            html += "<tr><td>" + data.time + "</td><td>" + data.name + "</td><td>" + data.location + "</td></tr>";
+                            $('#tbody').html(html);
+                        },
+                        error:function(xhr, status, error){
+                            console.log("请求失败:", error);
+                            alert("查询失败，请重试");
+                        }
+                    });
+                    
+                    return false;  // 双重保险，也阻止事件冒泡
+                });
+            });
+        </script>
+
+        <input id="t1" type="text" value="123">
+        <input id="t2" type="text" value="test">
+</body>
+
+</html>

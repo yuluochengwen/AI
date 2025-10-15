@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>jQuery 示例</title>
+        <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                $("#btn1").click(function(){
+                    $("#test1").html("<b>hello</b>"); //html()方法用于设置元素的内容
+                });
+                $("#btn2").click(function(){
+                    $("#test2").text("hello"); //text()方法用于设置元素的内容
+                });
+                $("#btn3").click(function(){
+                    $("#test3").val("hello"); //val()方法用于设置表单元素的值
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <p id="test1">test1</p>
+        <p id="test2">test2</p>
+        <p>输入框<input type="text" id="test3" value="菜鸟教程"></p>
+        <button id="btn1">html()方法</button>
+        <button id="btn2">text()方法</button>
+        <button id="btn3">val()方法</button>
+    </body>
+</html>
+

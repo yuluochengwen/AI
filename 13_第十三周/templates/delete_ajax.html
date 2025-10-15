@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <form action="/delete" method="post">
+        <p>输入要删除的考试的id：<input type="text" name="choice" id="choice"></p>
+        <p>
+            <button type="button" value="提交" id="submit">提交</button>
+            <input type="reset" value="重置">
+        </p>
+    </form>
+    <a href="/welcome">首页</a>
+    <div id="result">
+        <!-- 后端返回结果显示区域 -->
+
+    </div>
+    <script>
+        // JQ语法
+        $(document).ready(function () {
+            // 监听点击事件
+            $("#submit").click(function () {
+                // 创建并接收id
+                var choice = ""
+                choice = $("#choice").val();
+                // 将数据转为json，方便向后端传输
+                var data = JSON.stringify({
+                    choice: choice
+                })
+
+                $.ajax({
+                    url: '/delete_ajax',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: data,
+
+                    success: function (response) {
+                        console.log("接收到的响应:", response);
+
+                        if (response.success) {
+                            $("#result").html(`
+                                <div style="color: green; padding: 10px; border: 1px solid green;">
+                                    ${response.msg}
+                                </div>
+                            `);
+                            // 等待两秒后，跳转到后端返回的指定路径去
+                            setTimeout(function () {
+                                window.location.href = response.redirect_url;
+                            }, 2000);
+                        } else {
+                            $("#result").html(`
+                                <div style="color: red; padding: 10px; border: 1px solid red;">
+                                    ${response.msg}
+                                </div>
+                            `);
+
+                        }
+                    }
+
+                })
+            })
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>删除考试确认</title>
+</head>
+<body>
+    <h1>确认删除以下考试吗？</h1>
+    {% if error_mag %}
+    <p style="color: red;">{{ error_mag }}</p >
+    {% endif %}
+    <form method="POST">
+        <!-- 隐藏域：传递要编辑的 ExamNo（无需用户修改） -->
+        <input type="hidden" name="exam_no" value="{{ exam_data.ExamNo }}">
+        <p>
+            <label for="ExamNo">考试编号：</label>
+            <input type="text" name="ExamNo" id="ExamNo" value="{{ exam_data.ExamNo }}">
+        </p >
+        <p>
+            <input type="submit" value="确认删除">
+            <a href="{{url_for ('welcome') }}">取消</a >
+        </p >
+    </form>
+</body>
+</html>
